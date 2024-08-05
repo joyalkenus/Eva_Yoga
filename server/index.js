@@ -1,23 +1,20 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
-console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY);
-console.log('Current working directory:', process.cwd());
-console.log('__dirname:', __dirname);
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const chatRoutes = require('./routes/chatRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 const { auth, db } = require('./config/firebaseConfig');
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3001', // Allow requests from your React app
+  credentials: true,
+}));
+
 app.use(express.json());
-
-// Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Middleware to verify Firebase ID token
@@ -37,42 +34,14 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-async function testFirestoreConnection() {
-  try {
-    const testDoc = await db.collection('test').doc('testDoc').set({ test: 'data' });
-    console.log('Firestore connection successful');
-    // Attempt to read the document back
-    const readDoc = await db.collection('test').doc('testDoc').get();
-    if (readDoc.exists) {
-      console.log('Successfully read test document:', readDoc.data());
-    } else {
-      console.log('Test document does not exist after writing');
-    }
-  } catch (error) {
-    console.error('Firestore connection failed:', error);
-    console.error('Error details:', JSON.stringify(error, null, 2));
-    if (error.code === 5) {
-      console.error('NOT_FOUND error. This could mean:');
-      console.error('1. The "yoga" database does not exist in this project');
-      console.error('2. Service account does not have necessary permissions for the "yoga" database');
-      console.error('3. Incorrect project ID or database configuration');
-    }
-  }
-}
-
-// Call this function when your server starts
-testFirestoreConnection();
-
 // API routes
-app.use('/api', verifyToken, chatRoutes);
+app.use('/api/chat', verifyToken, chatRoutes);
+app.use('/api/sessions', verifyToken, sessionRoutes);
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');

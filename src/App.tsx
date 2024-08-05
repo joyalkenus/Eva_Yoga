@@ -1,33 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { User } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import Login from './components/login';
-import Chat from './components/chat';
-import ErrorBoundary from './components/ErrorBoundary';
-import './App.css';
+import LandingPage from './pages/LandingPage';
+import YogaSessionPage from './pages/YogaSessionPage';
+import './styles/global.css';
+import axios from 'axios';
+import { initializeSession, sendMessage } from './services/geminiService';
+
+axios.interceptors.request.use(async (config) => {
+  const user = auth.currentUser;
+  if (user) {
+    const token = await user.getIdToken();
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
+  if (loading) {
+    return <div className="loading-screen">Loading...</div>;
+  }
+
   return (
-    <ErrorBoundary>
-      <div className="App">
-        <header className="App-header">
-          <h1>Yoga Assistant AI</h1>
-        </header>
-        <main>
-          {user ? <Chat user={user} /> : <Login />}
-        </main>
-      </div>
-    </ErrorBoundary>
+    <Router>
+      <Routes>
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/" element={user ? <LandingPage /> : <Navigate to="/login" />} />
+        <Route 
+          path="/yoga-session/:sessionId" 
+          element={user ? 
+            <YogaSessionPage 
+              initializeSession={initializeSession} 
+              sendMessage={sendMessage}
+            /> : 
+            <Navigate to="/login" />
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 };
 
