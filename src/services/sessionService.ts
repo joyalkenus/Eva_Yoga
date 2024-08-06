@@ -23,3 +23,12 @@ export const createSession = async () => {
     throw error;
   }
 };
+export const deleteAllSessions = async () => {
+  try {
+    const response = await axios.delete('/api/sessions/all');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting all sessions:', error);
+    throw error;
+  }
+};

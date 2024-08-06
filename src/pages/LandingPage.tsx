@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
-import { getSessions, createSession } from '../services/sessionService';
+import { getSessions, createSession, deleteAllSessions } from '../services/sessionService';
 
 interface Session {
   id: string;
@@ -14,6 +14,7 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchSessions();
@@ -67,6 +68,23 @@ const LandingPage: React.FC = () => {
     }
   };
 
+  const handleDeleteAllSessions = async () => {
+    if (window.confirm('Are you sure you want to delete all sessions? This action cannot be undone.')) {
+      setIsDeleting(true);
+      setError(null);
+      try {
+        await deleteAllSessions();
+        setSessions([]);
+        alert('All sessions have been deleted successfully.');
+      } catch (error) {
+        console.error('Error deleting all sessions:', error);
+        setError('Failed to delete sessions. Please try again.');
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
   return (
     <div className="landing-container">
       <div className="glass-panel floating">
@@ -85,6 +103,13 @@ const LandingPage: React.FC = () => {
                 Session from {new Date(session.createdAt).toLocaleString()}
               </button>
             ))}
+            <button 
+              onClick={handleDeleteAllSessions}
+              className="btn delete-btn"
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete All Sessions'}
+            </button>
           </div>
         ) : (
           <p>No previous sessions found.</p>

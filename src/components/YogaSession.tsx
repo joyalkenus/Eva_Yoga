@@ -1,50 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import Camera from './Camera';
-import PoseSuggestion from './PoseSuggestion';
-import { initializeSession, sendMessage } from '../services/geminiService';
+import Camera from '../components/Camera';
 import { speak } from '../utils/speechUtils';
+import '../styles/YogaSessionPage.css';
 
-const YogaSession: React.FC = () => {
+interface YogaSessionPageProps {
+  initializeSession: (sessionId: string) => Promise<{ response: string; poseName: string }>;
+  sendMessage: (sessionId: string, userInput: string, image?: string) => Promise<{ response: string; poseName: string }>;
+}
+
+const YogaSessionPage: React.FC<YogaSessionPageProps> = ({ initializeSession, sendMessage }) => {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const [messages, setMessages] = useState<Array<{ role: string, content: string }>>([]);
   const [currentPoseName, setCurrentPoseName] = useState<string>('');
+  const [latestInstruction, setLatestInstruction] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const addMessage = (role: string, content: string) => {
-    setMessages(prevMessages => [...prevMessages, { role, content }]);
-  };
 
   const initSession = useCallback(async () => {
     if (!sessionId) return;
     try {
       const { response, poseName } = await initializeSession(sessionId);
-      addMessage('assistant', response);
+      setLatestInstruction(response);
       setCurrentPoseName(poseName);
       speak(response);
     } catch (error) {
       console.error("Error initializing session:", error);
       setError("Failed to initialize session. Please try again.");
     }
-  }, [sessionId]);
+  }, [sessionId, initializeSession]);
 
   useEffect(() => {
     initSession();
   }, [initSession]);
-
-  const handleUserInput = async (userInput: string) => {
-    addMessage('user', userInput);
-    try {
-      const { response, poseName } = await sendMessage(sessionId!, userInput);
-      addMessage('assistant', response);
-      setCurrentPoseName(poseName);
-      speak(response);
-    } catch (error) {
-      console.error("Error processing user input:", error);
-      setError("Failed to process your input. Please try again.");
-    }
-  };
 
   const handleCapture = async (imageSrc: string) => {
     if (isAnalyzing || !sessionId) return;
@@ -52,7 +39,7 @@ const YogaSession: React.FC = () => {
     setError(null);
     try {
       const { response, poseName } = await sendMessage(sessionId, "Analyze my pose", imageSrc);
-      addMessage('assistant', response);
+      setLatestInstruction(response);
       setCurrentPoseName(poseName);
       speak(response);
     } catch (error) {
@@ -64,36 +51,31 @@ const YogaSession: React.FC = () => {
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="error-message">{error}</div>;
   }
 
   return (
-    <div className="yoga-session">
-      <h1>Yoga Session</h1>
-      <div className="message-history">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.role}`}>
-            {msg.content}
+    <div className="yoga-session-container">
+      <div className="yoga-session-content">
+        <div className="camera-container card">
+          <h2>Camera Stream Capture</h2>
+          <Camera onCapture={handleCapture} />
+        </div>
+        <div className="pose-suggestion-container card">
+          <h2>REAL YOGA POSE IMAGE</h2>
+          <div className="pose-image-placeholder">
+            {/* Placeholder for yoga pose image */}
+            <img src={`https://source.unsplash.com/400x300/?yoga,${currentPoseName}`} alt={`Yoga pose: ${currentPoseName}`} />
           </div>
-        ))}
+          <p>Current Pose: {currentPoseName}</p>
+        </div>
       </div>
-      <Camera onCapture={handleCapture} />
-      <PoseSuggestion 
-        poseName={currentPoseName}
-        isAnalyzing={isAnalyzing}
-      />
-      <input 
-        type="text" 
-        placeholder="Type your message here..."
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            handleUserInput(e.currentTarget.value);
-            e.currentTarget.value = '';
-          }
-        }}
-      />
+      <div className="instructions-container card">
+        <h2>LATEST GEMINI INSTRUCTIONS</h2>
+        <p>{latestInstruction}</p>
+      </div>
     </div>
   );
 };
 
-export default YogaSession;
+export default YogaSessionPage;
