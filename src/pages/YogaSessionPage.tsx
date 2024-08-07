@@ -17,7 +17,6 @@ const YogaSessionPage: React.FC<YogaSessionPageProps> = ({ initializeSession, se
   const [error, setError] = useState<string | null>(null);
 
   const processPoseInstruction = (response: string): string => {
-    // Remove the duplicate pose name
     const poseNameRegex = /\[POSE NAME: (.*?)\]/;
     const match = response.match(poseNameRegex);
     if (match) {
@@ -45,14 +44,10 @@ const YogaSessionPage: React.FC<YogaSessionPageProps> = ({ initializeSession, se
   }, [initSession]);
 
   useEffect(() => {
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-
-    // Add a small delay before speaking
     const timer = setTimeout(() => {
       speak(latestInstruction);
     }, 100);
-
     return () => clearTimeout(timer);
   }, [latestInstruction]);
 
