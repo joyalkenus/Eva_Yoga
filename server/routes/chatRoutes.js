@@ -45,11 +45,12 @@ router.post('/init', async (req, res) => {
   }
 });
 
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), async (req, res) => {
   try {
     const { sessionId, userInput } = req.body;
     const userId = req.user.uid;
-    const image = req.file;
+    const image = req.files['image'] ? req.files['image'][0] : null;
+    const audio = req.files['audio'] ? req.files['audio'][0] : null;
 
     console.log('Received chat request:', { sessionId, userId, userInput: userInput.substring(0, 50) + '...' });
 
@@ -57,12 +58,19 @@ router.post('/', upload.single('image'), async (req, res) => {
       throw new Error('SessionId, userId, and userInput are required');
     }
 
+    let processedUserInput = userInput;
+
+    if (audio) {
+      const transcription = await transcribeAudio(audio.buffer);
+      processedUserInput = transcription;
+    }
+
     const chatHistory = await getChatHistory(sessionId);
 
-    await saveChatMessage(sessionId, userId, 'user', userInput);
+    await saveChatMessage(sessionId, userId, 'user', processedUserInput);
 
     console.log('Generating response for user input...');
-    const { responseText, poseName, functionCall } = await generateResponse(userInput, chatHistory, image, false);
+    const { responseText, poseName, functionCall } = await generateResponse(processedUserInput, chatHistory, image, false);
     
     console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
 
@@ -74,38 +82,6 @@ router.post('/', upload.single('image'), async (req, res) => {
     res.status(500).json({ error: 'Failed to process chat', details: error.message });
   }
 });
-
-
-
-router.post('/', async (req, res) => {
-  try {
-    const { sessionId, userInput, image } = req.body;
-    const userId = req.user.uid;
-
-    console.log('Received chat request:', { sessionId, userId, userInput: userInput.substring(0, 50) + '...' });
-
-    if (!sessionId || !userId || !userInput) {
-      throw new Error('SessionId, userId, and userInput are required');
-    }
-
-    const chatHistory = await getChatHistory(sessionId);
-
-    await saveChatMessage(sessionId, userId, 'user', userInput);
-
-    console.log('Generating response for user input...');
-    const { responseText, poseName, functionCall } = await generateResponse(userInput, chatHistory, image, false);
-    
-    console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
-
-    await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
-
-    res.json({ responseText, poseName, functionCall });
-  } catch (error) {
-    console.error('Error processing chat:', error);
-    res.status(500).json({ error: 'Failed to process chat', details: error.message });
-  }
-});
-
 
 
 async function getChatHistory(sessionId) {

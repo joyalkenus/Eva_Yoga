@@ -94,11 +94,9 @@ const handleCapture = useCallback(async (imageSrc: string) => {
   setIsAnalyzing(true);
   setError(null);
   try {
-    // Convert the data URL to a Blob
     const response = await fetch(imageSrc);
     const blob = await response.blob();
     
-    // Create FormData and append the image
     const formData = new FormData();
     formData.append('image', blob, 'pose.jpg');
     formData.append('sessionId', sessionId);
@@ -129,11 +127,16 @@ const handleCapture = useCallback(async (imageSrc: string) => {
 }, [sessionId, isAnalyzing, speakAndListen, startListening]);
 
 
+
   // --- Handle user response
   const handleUserResponse = useCallback(async (userResponse: string) => {
     if (!sessionId) return;
     try {
-      const { responseText, poseName, functionCall }: GeminiResponse = await sendMessage(sessionId, userResponse);
+      const formData = new FormData();
+      formData.append('sessionId', sessionId);
+      formData.append('userInput', userResponse);
+
+      const { responseText, poseName, functionCall }: GeminiResponse = await sendMessage(sessionId, userResponse, formData);
       const processedResponse = processPoseInstruction(responseText);
       setLatestInstruction(processedResponse);
       setCurrentPoseName(poseName || 'Unknown Pose');
@@ -154,6 +157,7 @@ const handleCapture = useCallback(async (imageSrc: string) => {
       setError("Sorry, I couldn't process your response. Please try again.");
     }
   }, [sessionId, speakAndListen, startListening]);
+
 
   useEffect(() => {
     if (text && !isSpeakingRef.current) {

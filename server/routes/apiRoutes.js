@@ -1,13 +1,17 @@
 const express = require('express');
-const { transcribeAudio, analyzePose } = require('../services/geminiService');
+const { transcribeAudio, generateResponse } = require('../services/geminiService');
 const multer = require('multer');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post('/analyze-pose', async (req, res) => {
+router.post('/analyze-pose', upload.single('image'), async (req, res) => {
   try {
-    const { image, pose } = req.body;
-    const analysis = await analyzePose(image, pose);
+    const { pose } = req.body;
+    const image = req.file;
+    if (!image) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+    const analysis = await generateResponse(`Analyze this yoga pose: ${pose}`, [], image, false);
     res.json({ analysis });
   } catch (error) {
     console.error('Error analyzing pose:', error);
