@@ -1,13 +1,22 @@
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const socketIo = require('socket.io');
 const chatRoutes = require('./routes/chatRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const apiRoutes = require('./routes/apiRoutes');
-const { auth, db } = require('./config/firebaseConfig');
+const { auth } = require('./config/firebaseConfig');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: ['http://localhost:3001', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
@@ -18,7 +27,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
 
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -40,15 +48,31 @@ app.use('/api/chat', verifyToken, chatRoutes);
 app.use('/api/sessions', verifyToken, sessionRoutes);
 app.use('/api', apiRoutes);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+// Add this catch-all route for debugging
+app.use('*', (req, res) => {
+  console.log(`Received request for ${req.originalUrl}`);
+  res.status(404).send(`Cannot ${req.method} ${req.originalUrl}`);
 });
 
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
+  console.error('Stack trace:', err.stack);
   res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  
+  socket.on('joinSession', (sessionId) => {
+    socket.join(sessionId);
+    console.log(`Client joined session: ${sessionId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

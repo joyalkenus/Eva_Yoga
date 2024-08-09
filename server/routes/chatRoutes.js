@@ -1,8 +1,14 @@
 const express = require('express');
 const { db } = require('../config/firebaseConfig');
+const multer = require('multer');
 const { generateResponse } = require('../services/geminiService');
 
+
+
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
+
+
 
 router.post('/init', async (req, res) => {
   try {
@@ -21,23 +27,55 @@ router.post('/init', async (req, res) => {
       const initialMessage = messagesSnapshot.docs[0];
       if (initialMessage && initialMessage.data().role === 'assistant') {
         console.log('Session already initialized, returning existing response');
-        return res.json({ response: initialMessage.data().content, poseName: initialMessage.data().poseName || 'Unknown Pose' });
+        return res.json({ responseText: initialMessage.data().content, poseName: initialMessage.data().poseName || 'Unknown Pose' });
       }
     }
 
     console.log('Generating initial response...');
-    const { responseText, poseName } = await generateResponse("Start a new yoga session", [], null, true);
+    const { responseText, poseName, functionCall } = await generateResponse("Start a new yoga session", [], null, true);
     
-    console.log('Generated initial response:', { responseText: responseText.substring(0, 50) + '...', poseName });
+    console.log('Generated initial response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
 
     await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
 
-    res.json({ response: responseText, poseName });
+    res.json({ responseText, poseName, functionCall });
   } catch (error) {
     console.error('Error initializing session:', error);
     res.status(500).json({ error: 'Failed to initialize session', details: error.message });
   }
 });
+
+router.post('/', upload.single('image'), async (req, res) => {
+  try {
+    const { sessionId, userInput } = req.body;
+    const userId = req.user.uid;
+    const image = req.file;
+
+    console.log('Received chat request:', { sessionId, userId, userInput: userInput.substring(0, 50) + '...' });
+
+    if (!sessionId || !userId || !userInput) {
+      throw new Error('SessionId, userId, and userInput are required');
+    }
+
+    const chatHistory = await getChatHistory(sessionId);
+
+    await saveChatMessage(sessionId, userId, 'user', userInput);
+
+    console.log('Generating response for user input...');
+    const { responseText, poseName, functionCall } = await generateResponse(userInput, chatHistory, image, false);
+    
+    console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
+
+    await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
+
+    res.json({ responseText, poseName, functionCall });
+  } catch (error) {
+    console.error('Error processing chat:', error);
+    res.status(500).json({ error: 'Failed to process chat', details: error.message });
+  }
+});
+
+
 
 router.post('/', async (req, res) => {
   try {
@@ -55,18 +93,20 @@ router.post('/', async (req, res) => {
     await saveChatMessage(sessionId, userId, 'user', userInput);
 
     console.log('Generating response for user input...');
-    const { responseText, poseName } = await generateResponse(userInput, chatHistory, image, false);
+    const { responseText, poseName, functionCall } = await generateResponse(userInput, chatHistory, image, false);
     
-    console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName });
+    console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
 
     await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
 
-    res.json({ response: responseText, poseName });
+    res.json({ responseText, poseName, functionCall });
   } catch (error) {
     console.error('Error processing chat:', error);
     res.status(500).json({ error: 'Failed to process chat', details: error.message });
   }
 });
+
+
 
 async function getChatHistory(sessionId) {
   try {

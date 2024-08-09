@@ -1,17 +1,8 @@
 const express = require('express');
-const { transcribeAudio } = require('../services/geminiService');
+const { transcribeAudio, analyzePose } = require('../services/geminiService');
 const multer = require('multer');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
-router.get('/yoga-instruction', async (req, res) => {
-  try {
-    const instruction = await getYogaInstruction();
-    res.json(instruction);
-  } catch (error) {
-    console.error('Error getting yoga instruction:', error);
-    res.status(500).json({ error: 'Failed to get yoga instruction' });
-  }
-});
 
 router.post('/analyze-pose', async (req, res) => {
   try {
@@ -23,8 +14,6 @@ router.post('/analyze-pose', async (req, res) => {
     res.status(500).json({ error: 'Failed to analyze pose' });
   }
 });
-
-
 
 router.post('/transcribe', upload.single('audioData'), async (req, res) => {
   try {
@@ -41,10 +30,5 @@ router.post('/transcribe', upload.single('audioData'), async (req, res) => {
     res.status(500).json({ error: 'Error transcribing audio' });
   }
 });
-
-
-
-
-
 
 module.exports = router;
