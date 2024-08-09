@@ -4,12 +4,14 @@
   "private": true,
   "dependencies": {
     "@google-cloud/firestore": "^7.9.0",
+    "@google-cloud/speech": "^6.7.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "firebase": "^10.12.4",
     "firebase-admin": "^11.11.1",
+    "groq-sdk": "^0.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
@@ -44,6 +46,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "concurrently": "^8.2.2",
@@ -56,12 +59,12 @@
     "react-app-rewired": "^2.2.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "url": "^0.11.3",
+    "url": "^0.11.4",
     "util": "^0.12.5"
   },
   "overrides": {
     "nth-check": "^2.1.1",
     "postcss": "^8.4.40"
   },
-  "proxy": "http://localhost:3002"
+  "proxy": "http://localhost:3000"
 }

@@ -4,7 +4,6 @@ const { generateResponse } = require('../services/geminiService');
 
 const router = express.Router();
 
-// Initialize session
 router.post('/init', async (req, res) => {
   try {
     const { sessionId } = req.body;
@@ -16,13 +15,22 @@ router.post('/init', async (req, res) => {
       throw new Error(`Missing required parameters: ${!sessionId ? 'sessionId' : ''} ${!userId ? 'userId' : ''}`);
     }
 
-    // Generate initial response
-    const { responseText, poseName } = await generateResponse("Start a new yoga session", []);
+    const sessionDoc = await db.collection('sessions').doc(sessionId).get();
+    if (sessionDoc.exists) {
+      const messagesSnapshot = await db.collection('sessions').doc(sessionId).collection('messages').orderBy('timestamp', 'asc').limit(1).get();
+      const initialMessage = messagesSnapshot.docs[0];
+      if (initialMessage && initialMessage.data().role === 'assistant') {
+        console.log('Session already initialized, returning existing response');
+        return res.json({ response: initialMessage.data().content, poseName: initialMessage.data().poseName || 'Unknown Pose' });
+      }
+    }
+
+    console.log('Generating initial response...');
+    const { responseText, poseName } = await generateResponse("Start a new yoga session", [], null, true);
     
     console.log('Generated initial response:', { responseText: responseText.substring(0, 50) + '...', poseName });
 
-    // Save the response to Firestore
-    await saveChatMessage(sessionId, userId, 'assistant', responseText);
+    await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
 
     res.json({ response: responseText, poseName });
   } catch (error) {
@@ -31,8 +39,7 @@ router.post('/init', async (req, res) => {
   }
 });
 
-// Handle user input
-router.post('/chat', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { sessionId, userInput, image } = req.body;
     const userId = req.user.uid;
@@ -43,19 +50,16 @@ router.post('/chat', async (req, res) => {
       throw new Error('SessionId, userId, and userInput are required');
     }
 
-    // Get the chat history for context
     const chatHistory = await getChatHistory(sessionId);
 
-    // Save the user input to the database
     await saveChatMessage(sessionId, userId, 'user', userInput);
 
-    // Generate response
-    const { responseText, poseName } = await generateResponse(userInput, chatHistory, image);
+    console.log('Generating response for user input...');
+    const { responseText, poseName } = await generateResponse(userInput, chatHistory, image, false);
     
     console.log('Generated response:', { responseText: responseText.substring(0, 50) + '...', poseName });
 
-    // Save the response to Firestore
-    await saveChatMessage(sessionId, userId, 'assistant', responseText);
+    await saveChatMessage(sessionId, userId, 'assistant', responseText, poseName);
 
     res.json({ response: responseText, poseName });
   } catch (error) {
@@ -64,12 +68,12 @@ router.post('/chat', async (req, res) => {
   }
 });
 
-// Helper function to get chat history
 async function getChatHistory(sessionId) {
   try {
     const chatSnapshot = await db.collection('sessions').doc(sessionId)
       .collection('messages')
       .orderBy('timestamp', 'asc')
+      .limit(10)
       .get();
 
     return chatSnapshot.docs.map(doc => {
@@ -85,9 +89,8 @@ async function getChatHistory(sessionId) {
   }
 }
 
-// Helper function to save chat message
-async function saveChatMessage(sessionId, userId, role, content) {
-  console.log('Saving chat message:', { sessionId, userId, role, content: content.substring(0, 50) + '...' });
+async function saveChatMessage(sessionId, userId, role, content, poseName = null) {
+  console.log('Saving chat message:', { sessionId, userId, role, content: content.substring(0, 50) + '...', poseName });
 
   if (!sessionId || !userId || !role || !content) {
     throw new Error(`Missing required parameters for saveChatMessage: ${!sessionId ? 'sessionId' : ''} ${!userId ? 'userId' : ''} ${!role ? 'role' : ''} ${!content ? 'content' : ''}`);
@@ -100,10 +103,10 @@ async function saveChatMessage(sessionId, userId, role, content) {
       userId,
       role,
       content,
+      poseName,
       timestamp: new Date()
     });
 
-    // Update the session's lastUpdated field
     await db.collection('sessions').doc(sessionId).update({
       lastUpdated: new Date()
     });

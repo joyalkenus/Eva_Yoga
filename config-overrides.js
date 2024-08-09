@@ -3,17 +3,24 @@ const webpack = require('webpack');
 module.exports = function override(config, env) {
   config.resolve.fallback = {
     ...config.resolve.fallback,
-    "crypto": require.resolve("crypto-browserify"),
-    "buffer": require.resolve("buffer"),
-    "path": require.resolve("path-browserify"),
-    "stream": require.resolve("stream-browserify"),
-    "zlib": require.resolve("browserify-zlib"),
-    "querystring": require.resolve("querystring-es3"),
-    "url": require.resolve("url"),
-    "util": require.resolve("util"),
-    "http": require.resolve("stream-http"),
-    "https": require.resolve("https-browserify"),
-    "os": require.resolve("os-browserify/browser")
+    assert: require.resolve('assert'),
+    buffer: require.resolve('buffer'),
+    crypto: require.resolve('crypto-browserify'),
+    http: require.resolve('stream-http'),
+    https: require.resolve('https-browserify'),
+    os: require.resolve('os-browserify/browser'),
+    path: require.resolve('path-browserify'),
+    process: require.resolve('process/browser'),
+    querystring: require.resolve('querystring-es3'),
+    stream: require.resolve('stream-browserify'),
+    url: require.resolve('url'),
+    util: require.resolve('util'),
+    zlib: require.resolve('browserify-zlib'),
+  };
+
+  config.resolve.alias = {
+    ...config.resolve.alias,
+    process: 'process/browser',
   };
 
   config.plugins.push(
@@ -23,18 +30,12 @@ module.exports = function override(config, env) {
     })
   );
 
-  config.devServer = {
-    ...config.devServer,
-    setupMiddlewares: (middlewares, devServer) => {
-      if (!devServer) {
-        throw new Error('webpack-dev-server is not defined');
-      }
-
-      // Add your custom middleware here if needed
-
-      return middlewares;
-    },
-  };
+  config.module.rules.push({
+    test: /\.m?js/,
+    resolve: {
+      fullySpecified: false
+    }
+  });
 
   return config;
 };

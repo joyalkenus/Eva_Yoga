@@ -55,6 +55,7 @@ const LandingPage: React.FC = () => {
   };
 
   const handleContinueSession = (sessionId: string) => {
+    console.log("Continuing session:", sessionId); // Add logging
     navigate(`/yoga-session/${sessionId}`);
   };
 

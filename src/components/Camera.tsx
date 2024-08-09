@@ -1,10 +1,14 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 
 interface CameraProps {
   onCapture: (imageSrc: string) => void;
 }
 
-const Camera: React.FC<CameraProps> = ({ onCapture }) => {
+export interface CameraHandle {
+  captureImage: () => void;
+}
+
+const Camera = forwardRef<CameraHandle, CameraProps>(({ onCapture }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -47,6 +51,10 @@ const Camera: React.FC<CameraProps> = ({ onCapture }) => {
     }
   };
 
+  useImperativeHandle(ref, () => ({
+    captureImage
+  }));
+
   return (
     <div className="camera-component">
       <video 
@@ -57,9 +65,8 @@ const Camera: React.FC<CameraProps> = ({ onCapture }) => {
       />
       {!isStreaming && <div className="camera-placeholder">Loading camera...</div>}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      <button onClick={captureImage} className="btn capture-btn">Capture Pose</button>
     </div>
   );
-};
+});
 
 export default Camera;

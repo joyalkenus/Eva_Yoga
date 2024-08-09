@@ -1,4 +1,8 @@
+const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const speech = require('@google-cloud/speech');
+const speechClient = new speech.SpeechClient();
+
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -29,12 +33,19 @@ You are a yoga assistant AI. Your task is to guide users through yoga sessions b
 Remember to use natural, conversational language throughout the session, as if you were a real yoga instructor speaking to the user. Always include the pose name in your responses using the format [POSE NAME: <pose name>]. Only include posename once.
 `;
 
-const generateResponse = async (userInput, chatHistory, image = null) => {
+const generateResponse = async (userInput, chatHistory, image = null, isNewSession = false) => {
+  console.log('generateResponse called with:', { userInput, chatHistory, image, isNewSession });
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   try {
-    const messages = [
-      { role: 'user', parts: [{ text: systemPrompt }] },
+    let messages = [];
+    
+    if (isNewSession) {
+      messages.push({ role: 'user', parts: [{ text: systemPrompt }] });
+    }
+
+    messages = [
+      ...messages,
       ...chatHistory.map(msg => ({
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }]
@@ -62,6 +73,7 @@ const generateResponse = async (userInput, chatHistory, image = null) => {
     const poseNameMatch = text.match(/\[POSE NAME: (.*?)\]/);
     const poseName = poseNameMatch ? poseNameMatch[1] : "Unknown Pose";
 
+    console.log('Generated response:', { responseText: text, poseName });
     return { responseText: text, poseName };
   } catch (error) {
     console.error('Error generating response:', error);
@@ -69,4 +81,35 @@ const generateResponse = async (userInput, chatHistory, image = null) => {
   }
 };
 
-module.exports = { generateResponse, systemPrompt };
+const transcribeAudio = async (audioBuffer) => {
+  try {
+    if (!audioBuffer || audioBuffer.length === 0) {
+      throw new Error('Audio buffer is empty or not set');
+    }
+
+    const audioBytes = audioBuffer.toString('base64');
+
+    const request = {
+      audio: {
+        content: audioBytes,
+      },
+      config: {
+        encoding: 'WEBM_OPUS', // Ensure this matches your audio format
+        sampleRateHertz: 48000, // Adjust this based on your audio sample rate
+        languageCode: 'en-US',
+      },
+    };
+
+    const [response] = await speechClient.recognize(request);
+    const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n');
+    console.log('Transcription from Google:', transcription);
+    return transcription;
+  } catch (error) {
+    console.error('Error transcribing audio with Google API:', error);
+    throw new Error('Failed to transcribe audio');
+  }
+};
+
+
+
+module.exports = { generateResponse, transcribeAudio, systemPrompt };

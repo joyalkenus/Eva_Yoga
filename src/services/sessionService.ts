@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3002/api/sessions'; // Update this line
-
+// In sessionService.ts
+const API_BASE_URL = 'http://localhost:3000/api/sessions';
 
 export const getSessions = async () => {
   try {
@@ -23,9 +23,10 @@ export const createSession = async () => {
     throw error;
   }
 };
+
 export const deleteAllSessions = async () => {
   try {
-    const response = await axios.delete('/api/sessions/all');
+    const response = await axios.delete(`${API_BASE_URL}/all`);
     return response.data;
   } catch (error) {
     console.error('Error deleting all sessions:', error);

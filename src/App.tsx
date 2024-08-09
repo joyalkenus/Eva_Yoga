@@ -7,7 +7,6 @@ import LandingPage from './pages/LandingPage';
 import YogaSessionPage from './pages/YogaSessionPage';
 import './styles/global.css';
 import axios from 'axios';
-import { initializeSession, sendMessage } from './services/geminiService';
 
 axios.interceptors.request.use(async (config) => {
   const user = auth.currentUser;
@@ -44,13 +43,7 @@ const App: React.FC = () => {
         <Route path="/" element={user ? <LandingPage /> : <Navigate to="/login" />} />
         <Route 
           path="/yoga-session/:sessionId" 
-          element={user ? 
-            <YogaSessionPage 
-              initializeSession={initializeSession} 
-              sendMessage={sendMessage}
-            /> : 
-            <Navigate to="/login" />
-          } 
+          element={user ? <YogaSessionPage /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
