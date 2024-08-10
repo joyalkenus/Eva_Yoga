@@ -7,7 +7,7 @@ import { GeminiResponse, initializeSession, sendMessage } from '../services/gemi
 import '../styles/YogaSessionPage.css';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
-
+import AnimatedSpeaker from '../components/AnimatedSpeaker';
 
 const YogaSessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -20,18 +20,37 @@ const YogaSessionPage: React.FC = () => {
   const cameraRef = useRef<CameraHandle>(null);
   const isSpeakingRef = useRef(false);
   const socketRef = useRef<Socket | null>(null);
+  const [poseImageUrl, setPoseImageUrl] = useState<string | null>(null);
 
-  const processPoseInstruction = (response: string): string => {
+ 
+  const fetchPoseImage = async (poseName: string): Promise<void> => {
+    try {
+      // Concatenate "Yoga pose" with the actual pose name for better search results
+      const query = `Yoga pose ${poseName}`;
+      const response = await fetch(`/api/pose-image?poseName=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (response.ok && data.imageUrl) {
+        setPoseImageUrl(data.imageUrl);
+      } else {
+        setPoseImageUrl(null);
+        console.warn('No images found for pose:', poseName);
+      }
+    } catch (error) {
+      console.error('Error fetching pose image:', error);
+      setPoseImageUrl(null);
+    }
+  };
+   const processPoseInstruction = (response: string): string => {
     const poseNameRegex = /\[POSE NAME: (.*?)\]/;
     const match = response.match(poseNameRegex);
     if (match) {
       const poseName = match[1];
       setCurrentPoseName(poseName);
+      fetchPoseImage(poseName); // Fetch the image for the current pose
       return response.replace(`[POSE NAME: ${poseName}]`, '').trim();
     }
     return response;
   };
-
   const initSession = useCallback(async () => {
     if (!sessionId || isInitializedRef.current) return;
     console.log('Initializing session');
@@ -87,48 +106,44 @@ const YogaSessionPage: React.FC = () => {
       }
     });
   }, []);
-// ------ Handle capture 
 
-const handleCapture = useCallback(async (imageSrc: string) => {
-  if (isAnalyzing || !sessionId) return;
-  setIsAnalyzing(true);
-  setError(null);
-  try {
-    const response = await fetch(imageSrc);
-    const blob = await response.blob();
-    
-    const formData = new FormData();
-    formData.append('image', blob, 'pose.jpg');
-    formData.append('sessionId', sessionId);
-    formData.append('userInput', 'Analyze my pose');
+  const handleCapture = useCallback(async (imageSrc: string) => {
+    if (isAnalyzing || !sessionId) return;
+    setIsAnalyzing(true);
+    setError(null);
+    try {
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      formData.append('image', blob, 'pose.jpg');
+      formData.append('sessionId', sessionId);
+      formData.append('userInput', 'Analyze my pose');
 
-    const { responseText, poseName, functionCall }: GeminiResponse = await sendMessage(sessionId, "Analyze my pose", formData);
-    const processedResponse = processPoseInstruction(responseText);
-    setLatestInstruction(processedResponse);
-    setCurrentPoseName(poseName || 'Unknown Pose');
+      const { responseText, poseName, functionCall }: GeminiResponse = await sendMessage(sessionId, "Analyze my pose", formData);
+      const processedResponse = processPoseInstruction(responseText);
+      setLatestInstruction(processedResponse);
+      setCurrentPoseName(poseName || 'Unknown Pose');
 
-    if (functionCall) {
-      if (functionCall.name === 'captureAndAnalyzePose') {
-        if (cameraRef.current) {
-          cameraRef.current.captureImage();
+      if (functionCall) {
+        if (functionCall.name === 'captureAndAnalyzePose') {
+          if (cameraRef.current) {
+            cameraRef.current.captureImage();
+          }
+        } else if (functionCall.name === 'listenToUserResponse') {
+          startListening();
         }
-      } else if (functionCall.name === 'listenToUserResponse') {
-        startListening();
+      } else {
+        speakAndListen(processedResponse);
       }
-    } else {
-      speakAndListen(processedResponse);
+    } catch (error) {
+      console.error("Error analyzing pose:", error);
+      setError("Sorry, I couldn't analyze your pose at the moment. Please try again.");
+    } finally {
+      setIsAnalyzing(false);
     }
-  } catch (error) {
-    console.error("Error analyzing pose:", error);
-    setError("Sorry, I couldn't analyze your pose at the moment. Please try again.");
-  } finally {
-    setIsAnalyzing(false);
-  }
-}, [sessionId, isAnalyzing, speakAndListen, startListening]);
+  }, [sessionId, isAnalyzing, speakAndListen, startListening]);
 
-
-
-  // --- Handle user response
   const handleUserResponse = useCallback(async (userResponse: string) => {
     if (!sessionId) return;
     try {
@@ -158,12 +173,26 @@ const handleCapture = useCallback(async (imageSrc: string) => {
     }
   }, [sessionId, speakAndListen, startListening]);
 
-
   useEffect(() => {
     if (text && !isSpeakingRef.current) {
       handleUserResponse(text);
     }
   }, [text, handleUserResponse]);
+
+  const instructionsRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (instructionsRef.current) {
+      const container = instructionsRef.current.parentElement;
+      if (container) {
+        let fontSize = 1;
+        while (container.scrollHeight > container.clientHeight && fontSize > 0.5) {
+          fontSize -= 0.05;
+          instructionsRef.current.style.fontSize = `${fontSize}rem`;
+        }
+      }
+    }
+  }, [latestInstruction]);
 
   if (!sessionId) {
     return <div className="error-message">No session ID provided.</div>;
@@ -175,29 +204,34 @@ const handleCapture = useCallback(async (imageSrc: string) => {
 
   return (
     <div className="yoga-session-container">
-      <div className="yoga-session-content">
-        <div className="camera-container card">
-          <h2>Camera Stream</h2>
-          <Camera ref={cameraRef} onCapture={handleCapture} />
+      <div className="camera-container card">
+        <h2>Camera Stream</h2>
+        <Camera ref={cameraRef} onCapture={handleCapture} />
+      </div>
+      <div className="pose-suggestion-container card">
+        <h2>Current Yoga Pose</h2>
+        <div className="pose-image-placeholder">
+          {poseImageUrl ? (
+            <img src={poseImageUrl} alt={`Yoga pose: ${currentPoseName}`} />
+          ) : (
+            <p>Loading image...</p>
+          )}
         </div>
-        <div className="pose-suggestion-container card">
-          <h2>Current Yoga Pose</h2>
-          <div className="pose-image-placeholder">
-            <img src={`https://source.unsplash.com/400x300/?yoga,${encodeURIComponent(currentPoseName)}`} alt={`Yoga pose: ${currentPoseName}`} />
-          </div>
-          <p>Current Pose: {currentPoseName}</p>
-        </div>
+        <p>Current Pose: {currentPoseName}</p>
       </div>
       <div className="instructions-container card">
-        <h2>AI Instructions</h2>
-        <p>{latestInstruction}</p>
+        <h2>Yoga Instructions</h2>
+        <p ref={instructionsRef}>{latestInstruction}</p>
       </div>
-      <div className="feedback-container card">
-        <h2>Your Feedback</h2>
-        <p>{isListening ? 'Listening...' : (isSpeakingRef.current ? 'AI is speaking...' : 'Waiting for your response')}</p>
+      <div className="ai-feedback-container">
+        <AnimatedSpeaker isPlaying={isSpeakingRef.current} />
+        <p className="ai-status">
+          {isListening ? 'Listening...' : (isSpeakingRef.current ? 'AI is speaking...' : 'Waiting for your response')}
+        </p>
       </div>
     </div>
   );
 };
 
 export default YogaSessionPage;
+

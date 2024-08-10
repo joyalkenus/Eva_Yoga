@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import './Camera.css';
 
 interface CameraProps {
   onCapture: (imageSrc: string) => void;
@@ -12,6 +13,7 @@ const Camera = forwardRef<CameraHandle, CameraProps>(({ onCapture }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const setupCamera = async () => {
@@ -20,11 +22,21 @@ const Camera = forwardRef<CameraHandle, CameraProps>(({ onCapture }, ref) => {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play().catch(e => {
+                console.error("Error playing video:", e);
+                setError("Failed to start video playback");
+              });
+            };
+            // Set streaming to true immediately after assigning the stream
             setIsStreaming(true);
           }
         } catch (err) {
           console.error("Error accessing the camera: ", err);
+          setError("Camera access denied or not available");
         }
+      } else {
+        setError("getUserMedia is not supported in this browser");
       }
     };
 
@@ -61,9 +73,13 @@ const Camera = forwardRef<CameraHandle, CameraProps>(({ onCapture }, ref) => {
         ref={videoRef} 
         autoPlay 
         playsInline 
-        style={{ width: '100%', maxWidth: '640px', display: isStreaming ? 'block' : 'none' }}
+        style={{ width: '100%', height: '100%', display: isStreaming ? 'block' : 'none' }}
       />
-      {!isStreaming && <div className="camera-placeholder">Loading camera...</div>}
+      {!isStreaming && (
+        <div className="camera-placeholder">
+          {error ? error : "Loading camera..."}
+        </div>
+      )}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );

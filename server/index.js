@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables
+
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -5,6 +7,7 @@ const socketIo = require('socket.io');
 const chatRoutes = require('./routes/chatRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const apiRoutes = require('./routes/apiRoutes');
+const poseImageRoutes = require('./routes/poseImageRoutes'); // Adjusted import
 const { auth } = require('./config/firebaseConfig');
 
 const app = express();
@@ -44,6 +47,7 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
+app.use('/api/pose-image', poseImageRoutes); // Updated to point directly to the route
 app.use('/api/chat', verifyToken, chatRoutes);
 app.use('/api/sessions', verifyToken, sessionRoutes);
 app.use('/api', apiRoutes);

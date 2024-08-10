@@ -1,91 +1,120 @@
 .yoga-session-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 20px;
-    background: linear-gradient(45deg, #6e00ff, #00d4ff);
-    color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  height: 100vh;
+  padding: 20px;
+  background: linear-gradient(45deg, #6e00ff, #00d4ff);
+  color: white;
+  box-sizing: border-box;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-container {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+
+.pose-suggestion-container {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.instructions-container {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  overflow-y: auto;
+}
+
+.ai-feedback-container {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  box-shadow: none;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.instructions-container h2 {
+  font-size: 1.1rem;
+}
+
+.camera-container video,
+.pose-image-placeholder img {
+  width: 100%;
+  height: calc(100% - 60px);
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.instructions-container p {
+  margin: 0;
+  padding: 10px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.ai-status {
+  margin-top: 10px;
+  font-size: 1rem;
+  text-align: center;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .yoga-session-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
   }
-  
-  .yoga-session-content {
-    display: flex;
-    flex: 1;
-    gap: 20px;
-    margin-bottom: 20px;
+
+  .camera-container,
+  .pose-suggestion-container,
+  .instructions-container,
+  .ai-feedback-container {
+    grid-column: 1 / 2;
   }
-  
-  .card {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-  }
-  
+
   .camera-container,
   .pose-suggestion-container {
-    flex: 1;
+    height: 300px;
   }
-  
+
   .instructions-container {
-    flex: 1;
-  }
-  
-  h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    text-align: center;
-    color: #ffffff;
-  }
-  
-  .error-message {
-    color: #ff6b6b;
-    text-align: center;
-    font-size: 1.2rem;
-    margin-top: 20px;
-  }
-  
-  .camera-container video {
-    width: 100%;
     height: auto;
-    border-radius: 15px;
-    object-fit: cover;
+    max-height: 300px;
   }
-  
-  .pose-image-placeholder {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 15px;
+
+  .ai-feedback-container {
+    height: 100px;
   }
-  
-  .pose-image-placeholder img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
+
   .instructions-container p {
-    margin: 0;
-    padding: 10px;
     font-size: 1rem;
-    line-height: 1.5;
   }
-  
-  @media (max-width: 768px) {
-    .yoga-session-content {
-      flex-direction: column;
-    }
-  
-    .camera-container,
-    .pose-suggestion-container,
-    .instructions-container {
-      width: 100%;
-    }
-  }
+}
