@@ -5,6 +5,7 @@ const { generateResponse } = require('../services/geminiService');
 
 
 
+
 const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
@@ -82,6 +83,7 @@ router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio',
     res.status(500).json({ error: 'Failed to process chat', details: error.message });
   }
 });
+
 
 
 async function getChatHistory(sessionId) {

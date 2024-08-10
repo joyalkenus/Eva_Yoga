@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import Camera, { CameraHandle } from '../components/Camera';
-import { speak } from '../utils/speechUtils';
+import { speak ,speechEvents } from '../utils/speechUtils';
 import { useSpeechToText } from '../services/speechToTextService';
 import { GeminiResponse, initializeSession, sendMessage } from '../services/geminiService';
 import '../styles/YogaSessionPage.css';
@@ -40,16 +40,29 @@ const YogaSessionPage: React.FC = () => {
       setPoseImageUrl(null);
     }
   };
-   const processPoseInstruction = (response: string): string => {
+  
+  // ------- to get the pose name and display response
+  const processPoseInstruction = (response: string): string => {
     const poseNameRegex = /\[POSE NAME: (.*?)\]/;
     const match = response.match(poseNameRegex);
+    let processedResponse = response;
+  
     if (match) {
       const poseName = match[1];
       setCurrentPoseName(poseName);
       fetchPoseImage(poseName); // Fetch the image for the current pose
-      return response.replace(`[POSE NAME: ${poseName}]`, '').trim();
+  
+      // Replace the [POSE NAME: ...] tag with just the pose name
+      processedResponse = processedResponse.replace(poseNameRegex, poseName);
     }
-    return response;
+  
+    // Remove asterisks and other special characters, but keep commas and periods
+    processedResponse = processedResponse.replace(/[*#@_\[\]{}()<>~`|]/g, '');
+  
+    // Remove extra spaces
+    processedResponse = processedResponse.replace(/\s+/g, ' ').trim();
+  
+    return processedResponse;
   };
   const initSession = useCallback(async () => {
     if (!sessionId || isInitializedRef.current) return;
@@ -97,15 +110,30 @@ const YogaSessionPage: React.FC = () => {
     }
   }, [sessionId]);
 
+ 
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    const onSpeechStart = () => setIsSpeaking(true);
+    const onSpeechEnd = () => setIsSpeaking(false);
+
+    speechEvents.on('speechStart', onSpeechStart);
+    speechEvents.on('speechEnd', onSpeechEnd);
+
+    return () => {
+      speechEvents.off('speechStart', onSpeechStart);
+      speechEvents.off('speechEnd', onSpeechEnd);
+    };
+  }, []);
+
   const speakAndListen = useCallback((text: string) => {
-    isSpeakingRef.current = true;
     speak(text, () => {
-      isSpeakingRef.current = false;
       if (cameraRef.current) {
         cameraRef.current.captureImage();
       }
     });
   }, []);
+
 
   const handleCapture = useCallback(async (imageSrc: string) => {
     if (isAnalyzing || !sessionId) return;
@@ -224,7 +252,7 @@ const YogaSessionPage: React.FC = () => {
         <p ref={instructionsRef}>{latestInstruction}</p>
       </div>
       <div className="ai-feedback-container">
-        <AnimatedSpeaker isPlaying={isSpeakingRef.current} />
+        <AnimatedSpeaker isPlaying={isSpeaking} />
         <p className="ai-status">
           {isListening ? 'Listening...' : (isSpeakingRef.current ? 'AI is speaking...' : 'Waiting for your response')}
         </p>

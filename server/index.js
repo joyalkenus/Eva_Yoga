@@ -9,8 +9,9 @@ const sessionRoutes = require('./routes/sessionRoutes');
 const apiRoutes = require('./routes/apiRoutes');
 const poseImageRoutes = require('./routes/poseImageRoutes'); // Adjusted import
 const { auth } = require('./config/firebaseConfig');
-
+const ttsRoutes = require('./routes/ttsRoutes');
 const app = express();
+const path = require('path');
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -47,10 +48,14 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
+
+app.use('/api', ttsRoutes);
 app.use('/api/pose-image', poseImageRoutes); // Updated to point directly to the route
 app.use('/api/chat', verifyToken, chatRoutes);
 app.use('/api/sessions', verifyToken, sessionRoutes);
 app.use('/api', apiRoutes);
+// Add this line after other middleware setups
+app.use('/audio', express.static(path.join(__dirname, 'public', 'audio')));
 
 // Add this catch-all route for debugging
 app.use('*', (req, res) => {

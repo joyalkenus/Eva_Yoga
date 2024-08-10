@@ -1,24 +1,38 @@
-export const speak = (text: string, onFinish?: () => void) => {
-  console.log('Starting to speak:', text);
-  if ('speechSynthesis' in window) {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
+// src/utils/speechUtils.ts
+import axios from 'axios';
+import { EventEmitter } from 'events';
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.onstart = () => {
-      console.log('Speech started');
+export const speechEvents = new EventEmitter();
+
+export const speak = async (text: string, onFinish?: () => void) => {
+  console.log('Starting to speak:', text);
+  try {
+    const response = await axios.post('/api/tts', { text });
+    const audioUrl = `${window.location.origin}${response.data.audioUrl}`;
+
+    
+    const audio = new Audio(audioUrl);
+    
+    audio.onloadedmetadata = () => {
+      speechEvents.emit('speechStart');
     };
-    utterance.onend = () => {
+    
+    audio.onended = () => {
       console.log('Speech ended');
+      speechEvents.emit('speechEnd');
       if (onFinish) onFinish();
     };
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      if (onFinish) onFinish(); // Call onFinish even if there's an error
+    
+    audio.onerror = (event) => {
+      console.error('Audio playback error:', event);
+      speechEvents.emit('speechEnd');
+      if (onFinish) onFinish();
     };
-    window.speechSynthesis.speak(utterance);
-  } else {
-    console.log("Text-to-speech not supported in this browser");
+    
+    await audio.play();
+  } catch (error) {
+    console.error('Error in text-to-speech:', error);
+    speechEvents.emit('speechEnd');
     if (onFinish) onFinish();
   }
 };
