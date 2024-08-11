@@ -14,10 +14,12 @@ const app = express();
 const path = require('path');
 const { streamTextToSpeech } = require('./services/ttsService');
 const server = http.createServer(app);
+const healthRoutes = require('./routes/healthRoutes');
 const io = socketIo(server, {
   cors: {
     origin: ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
+    allowedHeaders: ["my-custom-header"],
     credentials: true
   },
   transports: ['websocket']
@@ -56,6 +58,7 @@ app.use('/api/pose-image', poseImageRoutes); // Updated to point directly to the
 app.use('/api/chat', verifyToken, chatRoutes);
 app.use('/api/sessions', verifyToken, sessionRoutes);
 app.use('/api', apiRoutes);
+app.use('/api', healthRoutes);
 // Add this line after other middleware setups
 app.use('/audio', express.static(path.join(__dirname, 'public', 'audio')));
 app.post('/api/tts', async (req, res) => {

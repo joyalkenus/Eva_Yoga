@@ -10,7 +10,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
 
-
 router.post('/init', async (req, res) => {
   try {
     const { sessionId } = req.body;
@@ -22,18 +21,8 @@ router.post('/init', async (req, res) => {
       throw new Error(`Missing required parameters: ${!sessionId ? 'sessionId' : ''} ${!userId ? 'userId' : ''}`);
     }
 
-    const sessionDoc = await db.collection('sessions').doc(sessionId).get();
-    if (sessionDoc.exists) {
-      const messagesSnapshot = await db.collection('sessions').doc(sessionId).collection('messages').orderBy('timestamp', 'asc').limit(1).get();
-      const initialMessage = messagesSnapshot.docs[0];
-      if (initialMessage && initialMessage.data().role === 'assistant') {
-        console.log('Session already initialized, returning existing response');
-        return res.json({ responseText: initialMessage.data().content, poseName: initialMessage.data().poseName || 'Unknown Pose' });
-      }
-    }
-
     console.log('Generating initial response...');
-    const { responseText, poseName, functionCall } = await generateResponse("Start a new yoga session", [], null, true);
+    const { responseText, poseName, functionCall } = await generateResponse("Start a new yoga session", [], null, true, sessionId);
     
     console.log('Generated initial response:', { responseText: responseText.substring(0, 50) + '...', poseName, functionCall });
 
@@ -45,6 +34,8 @@ router.post('/init', async (req, res) => {
     res.status(500).json({ error: 'Failed to initialize session', details: error.message });
   }
 });
+
+
 
 router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), async (req, res) => {
   try {

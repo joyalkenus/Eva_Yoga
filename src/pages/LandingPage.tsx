@@ -42,8 +42,8 @@ const LandingPage: React.FC = () => {
       const newSession = await createSession();
       console.log("New session created:", newSession);
       if (newSession && newSession.id) {
-        console.log("Navigating to:", `/yoga-session/${newSession.id}`);
-        navigate(`/yoga-session/${newSession.id}`);
+        console.log("Navigating to:", `/preparation/${newSession.id}`);
+        navigate(`/preparation/${newSession.id}`);
       } else {
         console.error("New session or session ID is undefined");
         setError('Failed to create a new session. Please try again.');

@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
       cx: CX_ID,
       q: query,
       searchType: 'image',
-      num: 1,
+      num: 3,
       imgSize: 'medium',
       safe: 'active',
       key: API_KEY,  // Use the API key for authentication

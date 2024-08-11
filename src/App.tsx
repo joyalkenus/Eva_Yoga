@@ -5,6 +5,8 @@ import { auth } from './firebaseConfig';
 import Login from './components/login';
 import LandingPage from './pages/LandingPage';
 import YogaSessionPage from './pages/YogaSessionPage';
+import PreparationPage from './pages/PreperationPage';
+
 import './styles/global.css';
 import axios from 'axios';
 
@@ -41,6 +43,8 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
         <Route path="/" element={user ? <LandingPage /> : <Navigate to="/login" />} />
+        <Route path="/preparation/:sessionId" element={<PreparationPage />} />
+        <Route path="/yoga-session/:sessionId" element={<YogaSessionPage />} />
         <Route 
           path="/yoga-session/:sessionId" 
           element={user ? <YogaSessionPage /> : <Navigate to="/login" />}

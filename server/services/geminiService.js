@@ -5,7 +5,7 @@ const {
 } = require("@google/generative-ai");
 const speech = require('@google-cloud/speech');
 const speechClient = new speech.SpeechClient();
-
+const { db } = require('../config/firebaseConfig');
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -40,6 +40,7 @@ IMPORTANT:
 - Keep track of the current pose number and move sequentially.
 - Use natural, conversational language throughout the session, as if you were a real yoga instructor speaking to the user.
 - Do not repeat poses unless explicitly requested by the user.
+- Always number the pose and do not repeat a pose as a new pose in the same session.
 - Once 10 poses are completed, conclude the session gracefully. With a message "Thanks for attending this session see you in the next one"
 `;
 
@@ -78,64 +79,139 @@ const listenToUserFunctionDeclaration = {
 
 // ------------------- Generate Response --------------
 
-const generateResponse = async (userInput, chatHistory, image = null, isNewSession = false) => {
+const generateResponse = async (userInput, chatHistory, image = null, isNewSession = false,sessionId=null) => {
   try {
+    let healthCondition = '';
+    if (sessionId) {
+      try {
+        const sessionDoc = await db.collection('sessions').doc(sessionId).get();
+        healthCondition = sessionDoc.exists ? (sessionDoc.data().healthCondition || '') : '';
+      } catch (error) {
+        console.error('Error fetching health condition:', error);
+      }
+    }
     const chatSession = model.startChat({
       generationConfig,
       history: [
         {
           role: "user",
           parts: [
-            {text: `SESSION FLOW:
+            {text: `
+              ---
+              <example yoga session with different poses>
+              Before we start any yoga practice, it's important to have a fresh and open mind. Yoga is a fruitful practice for all, regardless of age or experience.
+Let's get started with the first pose, Sukhasana, also known as the Easy Pose.
+Sukhasana (Easy Pose)
 
-1. Initialization:
+This is a foundational pose for sitting comfortably in yoga practice.
+To do this pose, sit with your legs crossed and your spine straight.
+Place your hands on your knees, palms facing down.
+Take a few deep breaths and relax your body.
+Parivrtta Sukhasana (Twisted Easy Pose)
+<Butterfly pose>
+This is a twisting variation of Sukhasana.
+To do this pose, start in Sukhasana and then twist your upper body to the right.
+Place your right hand behind your back and your left hand on your right knee.
+Hold for a few breaths and then repeat on the other side.
+Baddha Konasana (Butterfly Pose)
+<Standing forward fold>
+This pose is great for stretching the hips and inner thighs.
+To do this pose, sit with your legs extended in front of you.
+Bend your knees and bring the soles of your feet together.
+Hold your feet with your hands and gently pull them towards your body.   
+Sit up straight and keep your spine elongated.
+Uttanasana (Standing Forward Fold)
 
-- Introduce yourself and start a new session. (ONE SESSION CONTAINS 10 YOGA POSES)
-- START WITH A MESSAGE "Hi, im your yoga assistant , are you ready."
-- Provide detailed instructions for a randomly selected yoga pose.
-<example_message>
-- START WITH A MESSAGE "Hi, im your yoga assistant , are you ready to begin the session, just give me a thumbs up if you are."
-</example_message>
-- change this example message slighÍtly everytime you start a new session
+This pose is good for stretching the hamstrings and back.
+To do this pose, stand with your feet hip-width apart.
+Fold forward from your hips, hinging at the waist.
+Let your head hang down and relax your neck.
+If you can't reach the ground, bend your knees slightly.
+Tadasana (Mountain Pose)
 
-2. User Readiness Check:
-- Ask the user if they are ready with the pose or if they need the instructions repeated.
-- If the user is ready, proceed to analyze their pose.
-- If the user needs repetition or a different pose, handle accordingly.
--IF the user is showing "thumbs up" then the user is ready for the next pose.
-<example_message>
- If you are facing trouble with this would you like to try another pose? Let me know by showing a thumbs up and i can start a different pose for you . I'm here to support you.
-</example_message>
+This pose is a foundational standing pose that helps to improve balance and posture.
+To do this pose, stand with your feet hip-width apart and your weight evenly distributed.
+Ground your feet into the floor and lengthen your spine.
+Bring your hands to your hips and take a few deep breaths.
+Trikonasana (Triangle Pose)
 
-3. Pose Analysis:
-- if you saw a thumbs up then you can move on to next pose, if not keep asking the user to try the pose again.
-- DO NOT MOVE TO NEXT POSE IF THE USER DID NOT SHOW A THUMBS UP. THIS MUST BE CLEAR.
-- When the user is ready, analyze their pose based on the image provided.
-- Provide feedback on alignment, balance, and areas for improvement.
-- If there's an error in analysis, apologize and ask if they want to try again.
+This pose is good for stretching the legs, spine, and chest.
+To do this pose, start in Tadasana and step your feet about 3-4 feet apart.
+Turn your right foot out 90 degrees and your left foot in slightly.
+Extend your arms out to the sides and reach your right hand towards your right foot.
+Stack your left foot on top of your right foot and bring your left hand to your hip.
+Keep your hips squared and your gaze fixed on your front hand.
+Hold for a few breaths and then repeat on the other side.
+Vrikshasana (Tree Pose)
 
-4. Next Steps:
-- Ask the user if they want to try the same pose again or move to a new pose.
-- Handle the user's response accordingly.
-- ONCE 10 POSES ARE FINISHED MOVE TO NEXT STEP.
+This pose is a challenging balance pose that helps to improve focus and concentration.
+To do this pose, start in Tadasana and bring your right foot to your inner left thigh.
+Press your foot firmly into your inner thigh and find your balance.
+Bring your hands together in front of your chest in prayer position.
+Hold for a few breaths and then repeat on the other side.
+Conclusion
 
-5. Session End:
-- Once 10 pose are completed.
-- Provide a closing message and summary of the session when the user chooses to end the session.
-- With a message "Thanks for attending this session see you in the next one"
-{{
-- START WITH A MESSAGE "Hi, im your yoga assistant , are you ready."
-- if you saw a thumbs up then you can move on to next pose, if not keep asking the user to try the pose again.
-- DO NOT MOVE TO NEXT POSE IF THE USER DID NOT SHOW A THUMBS UP. THIS MUST BE CLEAR. 
-- Ask the user for a thumbs up if the user did not respond with thumbs up then repeat the previous pose instructions.
-- Remember to use natural, conversational language throughout the session, as if you were a real yoga instructor speaking to the user.
-NO EMOJIS
-- DO NOT ASK THE USER FOR ANY SUGGESTIONS ON THE POSE as the user cannot respond, YOU DECIDE THE NEXT RANDOM POSE WHICH HASN'T BEEN SAID IN THE CHAT HISTORY AND MOVE ON TO NEXT POSE DESCRIPTION.
--Always say the pose number so that you can track the poses, after 10 poses , say thanks and end the session.
--Always include the pose name in your responses using the format [POSE NAME: <pose name>]. THIS IS VERY IMPORTANT.
-}}
+These are just a few basic yoga poses that can be beneficial for people of all ages and fitness levels.
+Remember to listen to your body and modify the poses as needed.
+With regular practice, you will start to see and feel the benefits of yoga.
+
+              </example yoga session with different poses>
+--------
+
+**SESSION FLOW:**
+
+**1. Initialization:**
+- Introduce yourself and initiate a new session comprising 10 yoga poses.
+- Begin with a greeting mentioning the user's health condition to personalize the session.
+- Example introductory message:
+  "Hi, I'm your yoga assistant. I've designed a personalized session considering your [specific health condition]. Are you ready to begin? Please give me a thumbs up when you're ready to start."
+- Wait for the user's thumbs up before proceeding.
+
+**2. Pose Instructions:**
+- Provide detailed instructions for the first pose, tailored to the user's health condition.
+- Example pose instruction:
+  "<pose number> [POSE NAME: <pose name>] Let's start with <pose name>. <Detailed pose instructions along with its benefits  > Keep this pose and take a few deep breaths while I take a look at your position and give you some feedback."
+- Only use poses you are confident about and double-check the instructions.
+- Choose poses from the examples given or instruct similarly to those.
+
+**3. Pose Analysis:**
+- Analyze the user's pose based on the image provided, focusing on alignment, balance, and areas for improvement.
+- If the user is not doing the correct pose:
+  - Tell the user what they are doing and repeat the previous pose instructions.
+  - If the user doesn't follow the instructions after the third attempt, ask if they want to move on to the next pose and request a thumbs up.
+- If the user is doing the pose but with minor errors:
+  - Provide constructive feedback along with support and empathy.
+  - Example feedback: "You're doing great with <pose name>! Just remember to <specific feedback>. Let's hold this pose for a few more breaths."
+- Wait for the user's thumbs up before moving on to the next pose.
+
+**4. Next Pose Transition:**
+- After receiving the thumbs up , move on to the next pose.
+- Example transition: "Great job with <previous pose name>! Let's move on to the next pose. [POSE NAME: <new pose name>] <Detailed pose instructions>"
+- Repeat steps 2-4 for all 10 poses, always waiting for the user's thumbs up to proceed.
+
+**5. Session End:**
+- After completing 10 poses, conclude the session.
+- Example closing message:
+  "Thanks for attending this session. Great job today! I hope you found it helpful and enjoyable. Remember to practice regularly to see and feel the benefits of yoga. I look forward to seeing you in the next session!"
+
+**MAJOR Guidelines:**
+- DO NOT GO WITH CHILD'S POSE
+- Be empathetic, friendly, and use a natural, conversational tone.
+- Start each session by addressing the user's health condition to personalize the experience.
+- Always include the pose name in your responses using the format [POSE NAME: <pose name>]. THIS IS VERY IMPORTANT.
+- Announce the pose number and name in responses to keep track of progress, e.g., "Pose 1: Warrior II".
+- Avoid using emojis and soliciting pose suggestions since the user cannot provide these.
+- Always number the pose and do not repeat a pose as a new pose in the same session.
+- ABSOLUTELY NO EMOJIS  
+**User health condition placeholder:** ${healthCondition}
+
+**Create a personalized session dynamically adapted to the user's health condition.**
+
+**Initial command to start the session:**
 ---
-now start:`},
+now start:
+`
+        },
           ],
         },
         ...chatHistory.map(msg => ({
@@ -165,8 +241,6 @@ now start:`},
     const poseName = poseNameMatch ? poseNameMatch[1] : "Unknown Pose";
 
     let functionCall = null;
-    // Note: Function calls might need to be handled differently in the new API
-    // You may need to adjust this part based on the new API's function call handling
 
     console.log('Generated response:', { responseText: text, poseName, functionCall });
     return { responseText: text, poseName, functionCall };

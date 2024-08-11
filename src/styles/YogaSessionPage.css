@@ -1,3 +1,8 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .yoga-session-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -8,6 +13,7 @@
   background: linear-gradient(45deg, #6e00ff, #00d4ff);
   color: white;
   box-sizing: border-box;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .card {
@@ -19,6 +25,11 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 35px rgba(0, 0, 0, 0.15);
 }
 
 .camera-container {
@@ -44,8 +55,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: none;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
 }
 
 h2 {
@@ -57,16 +68,18 @@ h2 {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.instructions-container h2 {
-  font-size: 1.1rem;
-}
-
 .camera-container video,
 .pose-image-placeholder img {
   width: 100%;
   height: calc(100% - 60px);
   object-fit: cover;
   border-radius: 15px;
+  transition: transform 0.3s ease;
+}
+
+.camera-container video:hover,
+.pose-image-placeholder img:hover {
+  transform: scale(1.02);
 }
 
 .instructions-container p {
@@ -84,6 +97,14 @@ h2 {
   font-size: 1rem;
   text-align: center;
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 15px;
+  border-radius: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.ai-status:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 768px) {
