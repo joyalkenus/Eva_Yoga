@@ -1,14 +1,26 @@
-// server/routes/ttsRoutes.js
 const express = require('express');
-const { textToSpeech } = require('../services/ttsService');
+const { streamTextToSpeech } = require('../services/ttsService');
 
 const router = express.Router();
 
-router.post('/tts', async (req, res) => {
+router.post('/stream-tts', async (req, res) => {
   try {
     const { text } = req.body;
-    const audioUrl = await textToSpeech(text);
-    res.json({ audioUrl });
+    const audioStream = await streamTextToSpeech(text);
+
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    audioStream.pipe(res);
+
+    audioStream.on('end', () => {
+      res.end();
+    });
+
+    audioStream.on('error', (error) => {
+      console.error('Error in audio stream:', error);
+      res.status(500).json({ error: 'Error in audio stream' });
+    });
   } catch (error) {
     console.error('Error in TTS route:', error);
     res.status(500).json({ error: 'Failed to convert text to speech' });

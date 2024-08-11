@@ -12,13 +12,15 @@ const { auth } = require('./config/firebaseConfig');
 const ttsRoutes = require('./routes/ttsRoutes');
 const app = express();
 const path = require('path');
+const { streamTextToSpeech } = require('./services/ttsService');
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: ['http://localhost:3001', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true
-  }
+  },
+  transports: ['websocket']
 });
 
 const PORT = process.env.PORT || 3000;
@@ -56,6 +58,10 @@ app.use('/api/sessions', verifyToken, sessionRoutes);
 app.use('/api', apiRoutes);
 // Add this line after other middleware setups
 app.use('/audio', express.static(path.join(__dirname, 'public', 'audio')));
+app.post('/api/tts', async (req, res) => {
+  const { text } = req.body;
+  await streamTextToSpeech(text, res);
+});
 
 // Add this catch-all route for debugging
 app.use('*', (req, res) => {
@@ -77,10 +83,20 @@ io.on('connection', (socket) => {
     console.log(`Client joined session: ${sessionId}`);
   });
 
+  socket.on('tts-request', async (text) => {
+    try {
+      await streamTextToSpeech(text, socket);
+    } catch (error) {
+      console.error('Error in TTS request:', error);
+      socket.emit('tts-error', error.message);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
 });
+
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

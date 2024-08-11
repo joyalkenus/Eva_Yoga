@@ -126,15 +126,45 @@ const YogaSessionPage: React.FC = () => {
     };
   }, []);
 
-  const speakAndListen = useCallback((text: string) => {
-    speak(text, () => {
+  //---------- speak and trigger the image capture
+
+  const speakAndListen = useCallback(async (text: string) => {
+    try {
+      await speak(text);
+      console.log('Speech completed, capturing image');
+      // Only capture image after speech is complete
       if (cameraRef.current) {
         cameraRef.current.captureImage();
       }
-    });
+    } catch (error) {
+      console.error("Error in speakAndListen:", error);
+      // Handle the error appropriately
+    }
+  }, []);
+  
+  // In your component, add a listener for the speechEnd event
+  useEffect(() => {
+    const onSpeechStart = () => {
+      console.log("Speech started");
+      // You can add any actions you want to perform when speech starts
+    };
+  
+    const onSpeechEnd = () => {
+      console.log("Speech ended");
+      // You can add any actions you want to perform after speech ends here
+    };
+  
+    speechEvents.on('speechStart', onSpeechStart);
+    speechEvents.on('speechEnd', onSpeechEnd);
+  
+    return () => {
+      speechEvents.off('speechStart', onSpeechStart);
+      speechEvents.off('speechEnd', onSpeechEnd);
+    };
   }, []);
 
-
+  //---------- Handle capture image
+  
   const handleCapture = useCallback(async (imageSrc: string) => {
     if (isAnalyzing || !sessionId) return;
     setIsAnalyzing(true);
@@ -147,30 +177,20 @@ const YogaSessionPage: React.FC = () => {
       formData.append('image', blob, 'pose.jpg');
       formData.append('sessionId', sessionId);
       formData.append('userInput', 'Analyze my pose');
-
+  
       const { responseText, poseName, functionCall }: GeminiResponse = await sendMessage(sessionId, "Analyze my pose", formData);
       const processedResponse = processPoseInstruction(responseText);
       setLatestInstruction(processedResponse);
       setCurrentPoseName(poseName || 'Unknown Pose');
-
-      if (functionCall) {
-        if (functionCall.name === 'captureAndAnalyzePose') {
-          if (cameraRef.current) {
-            cameraRef.current.captureImage();
-          }
-        } else if (functionCall.name === 'listenToUserResponse') {
-          startListening();
-        }
-      } else {
-        speakAndListen(processedResponse);
-      }
+  
+      speakAndListen(processedResponse);
     } catch (error) {
       console.error("Error analyzing pose:", error);
       setError("Sorry, I couldn't analyze your pose at the moment. Please try again.");
     } finally {
       setIsAnalyzing(false);
     }
-  }, [sessionId, isAnalyzing, speakAndListen, startListening]);
+  }, [sessionId, speakAndListen]);
 
   const handleUserResponse = useCallback(async (userResponse: string) => {
     if (!sessionId) return;

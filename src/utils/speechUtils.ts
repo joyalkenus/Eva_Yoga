@@ -1,38 +1,63 @@
-// src/utils/speechUtils.ts
-import axios from 'axios';
 import { EventEmitter } from 'events';
 
 export const speechEvents = new EventEmitter();
 
-export const speak = async (text: string, onFinish?: () => void) => {
-  console.log('Starting to speak:', text);
-  try {
-    const response = await axios.post('/api/tts', { text });
-    const audioUrl = `${window.location.origin}${response.data.audioUrl}`;
+let isSpeaking = false;
+const audio = new Audio();
 
-    
-    const audio = new Audio(audioUrl);
-    
-    audio.onloadedmetadata = () => {
-      speechEvents.emit('speechStart');
-    };
-    
-    audio.onended = () => {
-      console.log('Speech ended');
-      speechEvents.emit('speechEnd');
-      if (onFinish) onFinish();
-    };
-    
-    audio.onerror = (event) => {
-      console.error('Audio playback error:', event);
-      speechEvents.emit('speechEnd');
-      if (onFinish) onFinish();
-    };
-    
-    await audio.play();
-  } catch (error) {
-    console.error('Error in text-to-speech:', error);
-    speechEvents.emit('speechEnd');
-    if (onFinish) onFinish();
-  }
+export const speak = async (text: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (isSpeaking) {
+      console.log('Already speaking, please wait');
+      reject(new Error('Speech in progress'));
+      return;
+    }
+
+    console.log('Starting to speak:', text);
+    isSpeaking = true;
+    speechEvents.emit('speechStart');
+
+    fetch('http://localhost:3000/api/tts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const audioUrl = URL.createObjectURL(blob);
+        audio.src = audioUrl;
+        audio.onended = () => {
+          console.log('Audio playback complete');
+          URL.revokeObjectURL(audioUrl);
+          isSpeaking = false;
+          speechEvents.emit('speechEnd');
+          resolve();
+        };
+        audio.onerror = (error) => {
+          console.error('Audio playback error:', error);
+          isSpeaking = false;
+          speechEvents.emit('speechEnd');
+          reject(error);
+        };
+        audio.play().catch(error => {
+          console.error('Failed to play audio:', error);
+          isSpeaking = false;
+          speechEvents.emit('speechEnd');
+          reject(error);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching audio:', error);
+        isSpeaking = false;
+        speechEvents.emit('speechEnd');
+        reject(error);
+      });
+  });
 };
