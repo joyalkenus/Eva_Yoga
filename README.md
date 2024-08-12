@@ -1,6 +1,3 @@
-
----
-
 # 🌟 Meet Eva : Your Personalized Yoga Companion 
 
 **Eva AI** 
