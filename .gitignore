@@ -22,6 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /server/.env
+/server/node_modules
 # Sensitive files
 *.env
 serviceAccountKey.json
