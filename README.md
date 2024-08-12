@@ -1,70 +1,140 @@
-# Getting Started with Create React App
+Certainly! Here’s a more polished and engaging version of the GitHub README:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+# 🌟 Meet Eva: Your Personalized Yoga Companion 🌟
 
-In the project directory, you can run:
+Welcome to **Eva AI**, an innovative approach to yoga practice with the power of AI. Whether you're an experienced yogi or just beginning your journey, Yoga Assistant AI offers tailored sessions that adapt in real-time to your needs, providing a truly personalized yoga experience.
 
-### `npm start`
+## 🧘 Project Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**Yoga Assistant AI** harnesses the Muti-Modal capabilities of Generative AI, specifically leveraging Google’s Gemini 1.5 Pro model, to deliver dynamic and responsive yoga sessions. Our application is designed to guide users through yoga poses with real-time feedback, utilizing modern web technologies to create a seamless and engaging experience. Key features include pose suggestions, real-time speech-to-text processing, and dynamic image fetching for yoga poses using the Google Custom Search API.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ✨ Key Achievements
 
-### `npm test`
+### Backend Enhancements
+1. **Pose Image Fetching**: 
+   - Integrated the Google Custom Search API to dynamically fetch and display relevant yoga pose images according to the pose selection by gemini during sessions, enhancing the visual guidance for users.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **AI Session Flow Management**: 
+   - Improved AI capabilities to manage and transition between yoga poses smoothly, ensuring a fluid and uninterrupted session experience for users.
 
-### `npm run build`
+### Frontend Enhancements
+1. **Dynamic Image Display**: 
+   - Implemented functionality within the `YogaSessionPage` to dynamically display fetched pose images, enriching the visual aspect of the user experience.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **UI/UX Improvements**: 
+   - Enhanced the overall layout for better responsiveness and usability across various devices, making the app more accessible and user-friendly.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 📁 Current File Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+yoga/
+├── client/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Camera.tsx
+│   │   │   ├── AnimatedSpeaker.tsx
+│   │   │   ├── ErrorBoundary.tsx
+│   │   │   ├── Login.tsx
+│   │   │   └── PoseImage.tsx 
+│   │   ├── pages/
+│   │   │   ├── LandingPage.tsx
+│   │   │   └── YogaSessionPage.tsx
+│   │   ├── services/
+│   │   │   ├── geminiService.ts
+│   │   │   ├── sessionService.ts
+│   │   │   ├── speechToTextService.ts
+│   │   │   └── poseImageService.ts 
+│   │   ├── utils/
+│   │   │   └── speechUtils.ts
+│   │   ├── styles/
+│   │   │   ├── YogaSessionPage.css
+│   │   │   └── AnimatedSpeaker.css
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── package.json
+│   └── tsconfig.json
+├── server/
+│   ├── config/
+│   │   └── firebaseConfig.js
+│   ├── routes/
+│   │   ├── apiRoutes.js
+│   │   ├── chatRoutes.js
+│   │   └── poseImageRoute.js 
+│   ├── services/
+│   │   ├── chatService.js
+│   │   ├── geminiService.js
+│   │   └── poseImageService.js 
+│   ├── .env
+│   ├── index.js
+│   └── package.json
+├── .gitignore
+└── README.md
+```
 
-### `npm run eject`
+## 💻 Technologies Used
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend
+- **React**: Builds the user interface with a component-based architecture.
+- **TypeScript**: Provides type safety, ensuring better code quality and maintainability.
+- **CSS**: Custom styles for creating a responsive and visually appealing UI.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Backend
+- **Express.js**: Handles server-side operations, managing API requests and integration with the frontend.
+- **Firebase**: Powers authentication and data storage, providing a robust and secure backend solution.
+- **Google Custom Search API**: Dynamically fetches images of yoga poses based on user input, enhancing the visual guidance in sessions.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### AI Integration
+- **Google Gemini 1.5 Pro**: Drives the AI capabilities for session management and dynamic pose suggestions, adapting the flow of yoga sessions to suit the user’s needs.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🚀 Installation
 
-## Learn More
+Get up and running with Yoga Assistant AI in just a few steps:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/joyalkenus/Eva_Yoga.git
+   ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. **Install dependencies**:
+   Navigate to both the `client` and `server` directories and run:
+   ```bash
+   npm install
+   ```
 
-### Code Splitting
+3. **Set up Firebase**:
+   - Create a Firebase project and add your configuration in `firebaseConfig.js`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. **Add Environment Variables**:
+   - Securely place your API keys and sensitive information in a `.env` file.
 
-### Analyzing the Bundle Size
+5. **Run the Application**:
+   - Start the backend:
+     ```bash
+     cd server
+     npm start
+     ```
+   - Start the frontend:
+     ```bash
+     cd client
+     npm start
+     ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🌐 Usage
 
-### Making a Progressive Web App
+- Access the app at `http://localhost:3000`.
+- Sign in using Google Authentication.
+- Begin your yoga session and enjoy real-time, AI-driven instructions and feedback.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🤝 Contributing
 
-### Advanced Configuration
+We welcome contributions! If you’d like to help improve Eva, please fork the repository, make your changes, and submit a pull request. Together, we can create an even more powerful yoga tool.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📜 License
 
-### Deployment
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
