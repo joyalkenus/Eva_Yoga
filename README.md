@@ -36,7 +36,7 @@ How Eva AI Solves These Issues:
 - Affordability: By providing a virtual yoga instructor, Eva AI eliminates the high costs associated with in-person classes.
 - Accessibility: With Eva AI, you have a personal yoga instructor available 24/7, ready to guide you through a session tailored to your needs.
 - Safety and Effectiveness: The real-time feedback feature ensures that you perform each pose correctly, reducing the risk of injury and enhancing the effectiveness of your practice.
-- Customization: Eva AI’s ability to adapt sessions based on your health and mood ensures that your yoga practice is always aligned with your personal needs.## ✨ Key Achievements
+- Customization: Eva AI’s ability to adapt sessions based on your health and mood ensures that your yoga practice is always aligned with your personal needs.
 
 ## ✨ Features
 1. Real-Time Feedback on Yoga Poses
