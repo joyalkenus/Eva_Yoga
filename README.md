@@ -1,4 +1,6 @@
-![Eva AI](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExem1sdWVzaGw0cTZianI3eWRqbjJ6d3RmOHF2M2VsZzl4YnJ6cTdzZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnHN9JLODvS1fr2/giphy.gif)
+<div align="center">
+  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExem1sdWVzaGw0cTZianI3eWRqbjJ6d3RmOHF2M2VsZzl4YnJ6cTdzZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnHN9JLODvS1fr2/giphy.gif" alt="Eva AI">
+</div>
 
 ---
 
