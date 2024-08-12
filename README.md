@@ -6,7 +6,6 @@
 **Eva AI** 
 - An innovative approach to yoga practice with the power of AI. Whether you're an experienced yogi or just beginning your journey, Yoga Assistant AI offers tailored sessions that adapt in real-time to your needs, providing a truly personalized yoga experience.
 
----
 
 <div align="center">
   <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2hpaDJvc203cm9ucWpiYWw3eDZ5dmlicTgzdnUyYmwyanUxaTdiYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZbhARpDlb5LjR0TyNC/giphy-downsized-large.gif" alt="Eva AI">
