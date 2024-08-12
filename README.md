@@ -1,4 +1,4 @@
-
+![Eva](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHJ5dTR2aXF6dWo4a2Vsc3ZveGxieDE2ZGVqNGR0bWQ0bWhnZDVybCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RIq92DYoeEpo5PamNs/giphy.gif)
 ---
 
 # 🌟 Meet Eva: Your Personalized Yoga Companion 🌟
