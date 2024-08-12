@@ -40,16 +40,16 @@ How Eva AI Solves These Issues:
 
 ## ✨ Features
 1. Real-Time Feedback on Yoga Poses
-Instant Corrections: Eva AI provides real-time feedback on your yoga poses, helping you to correct your posture instantly, ensuring you're always practicing safely and effectively.
-AI-Powered Guidance: The AI-driven instructions adapt based on your performance, ensuring you improve with every session.
+- Instant Corrections: Eva AI provides real-time feedback on your yoga poses, helping you to correct your posture instantly, ensuring you're always practicing safely and effectively.
+- AI-Powered Guidance: The AI-driven instructions adapt based on your performance, ensuring you improve with every session.
 2. Personalized Yoga Sessions
-Tailored to Your Health: Eva AI customizes sessions according to your health status, ensuring that your yoga practice aligns with your physical condition and goals.
-Mood-Based Adjustments: Depending on your mood, Eva AI can suggest yoga routines that either energize or relax you, providing a balanced practice that suits your emotional state.
+- Tailored to Your Health: Eva AI customizes sessions according to your health status, ensuring that your yoga practice aligns with your physical condition and goals.
+- Mood-Based Adjustments: Depending on your mood, Eva AI can suggest yoga routines that either energize or relax you, providing a balanced practice that suits your emotional state.
 3. Affordable and Accessible Anytime, Anywhere
-Cost-Effective Solution: Eva AI offers an affordable alternative to traditional yoga classes, making quality yoga instruction accessible to everyone.
-24/7 Availability: Practice yoga at your convenience—any time of the day, anywhere in the world. All you need is an internet connection and your yoga mat!
+- Cost-Effective Solution: Eva AI offers an affordable alternative to traditional yoga classes, making quality yoga instruction accessible to everyone.
+- 24/7 Availability: Practice yoga at your convenience—any time of the day, anywhere in the world. All you need is an internet connection and your yoga mat!
 4. Dynamic Visual Guidance
-Pose Image Fetching: With dynamic image fetching, Eva AI provides visual references for each yoga pose during the session, ensuring you have the guidance you need right when you need it.
+- Pose Image Fetching: With dynamic image fetching, Eva AI provides visual references for each yoga pose during the session, ensuring you have the guidance you need right when you need it.
 
 
 ### Backend Enhancements
@@ -171,7 +171,7 @@ Get up and running with Yoga Assistant AI in just a few steps:
 
 ## 🤝 Contributing
 
-We welcome contributions! If you’d like to help improve Eva, please fork the repository, make your changes, and submit a pull request. Together, we can create an even more powerful yoga tool.
+I welcome contributions! If you’d like to help improve Eva, please fork the repository, make your changes, and submit a pull request. Together, we can create an even more powerful yoga tool.
 
 ## 📜 License
 
