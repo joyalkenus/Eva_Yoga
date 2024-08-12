@@ -51,14 +51,14 @@ How Eva AI Solves These Issues:
 - Pose Image Fetching: With dynamic image fetching, Eva AI provides visual references for each yoga pose during the session, ensuring you have the guidance you need right when you need it.
 
 
-### Backend Enhancements
+## Backend Enhancements
 1. **Pose Image Fetching**: 
    - Integrated the Google Custom Search API to dynamically fetch and display relevant yoga pose images according to the pose selection by gemini during sessions, enhancing the visual guidance for users.
 
 2. **AI Session Flow Management**: 
    - Improved AI capabilities to manage and transition between yoga poses smoothly, ensuring a fluid and uninterrupted session experience for users.
 
-### Frontend Enhancements
+## Frontend Enhancements
 1. **Dynamic Image Display**: 
    - Implemented functionality within the `YogaSessionPage` to dynamically display fetched pose images, enriching the visual aspect of the user experience.
 
