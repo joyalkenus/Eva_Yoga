@@ -20,7 +20,7 @@ An innovative approach to yoga practice with the power of AI. Whether you're an 
 **Yoga Assistant AI** harnesses the Muti-Modal capabilities of Generative AI, specifically leveraging Google’s Gemini 1.5 Pro model, to deliver dynamic and responsive yoga sessions. Our application is designed to guide users through yoga poses with real-time feedback, utilizing modern web technologies to create a seamless and engaging experience. Key features include pose suggestions, real-time speech-to-text processing, and dynamic image fetching for yoga poses using the Google Custom Search API.
 
 
-🌟 Need
+## 🌟 Need
 In today's busy world, many people struggle to find the time, resources, or access to quality yoga instruction. Whether due to high costs, packed schedules, or geographical limitations, traditional yoga classes aren't always feasible. Furthermore, without proper guidance, there's a risk of injury or improper practice, which can negate the benefits of yoga.
 
 Common Challenges:
@@ -29,16 +29,16 @@ Common Challenges:
 - Scheduling Conflicts
 - Risk of Incorrect Posture and Potential Injury
 
-💡 Solution
+## 💡 Solution
 Eva AI addresses these challenges by offering a flexible, affordable, and highly personalized yoga experience that anyone can access, anytime, anywhere.
 
 How Eva AI Solves These Issues:
-Affordability: By providing a virtual yoga instructor, Eva AI eliminates the high costs associated with in-person classes.
-Accessibility: With Eva AI, you have a personal yoga instructor available 24/7, ready to guide you through a session tailored to your needs.
-Safety and Effectiveness: The real-time feedback feature ensures that you perform each pose correctly, reducing the risk of injury and enhancing the effectiveness of your practice.
-Customization: Eva AI’s ability to adapt sessions based on your health and mood ensures that your yoga practice is always aligned with your personal needs.## ✨ Key Achievements
+- Affordability: By providing a virtual yoga instructor, Eva AI eliminates the high costs associated with in-person classes.
+- Accessibility: With Eva AI, you have a personal yoga instructor available 24/7, ready to guide you through a session tailored to your needs.
+- Safety and Effectiveness: The real-time feedback feature ensures that you perform each pose correctly, reducing the risk of injury and enhancing the effectiveness of your practice.
+- Customization: Eva AI’s ability to adapt sessions based on your health and mood ensures that your yoga practice is always aligned with your personal needs.## ✨ Key Achievements
 
-✨ Features
+## ✨ Features
 1. Real-Time Feedback on Yoga Poses
 Instant Corrections: Eva AI provides real-time feedback on your yoga poses, helping you to correct your posture instantly, ensuring you're always practicing safely and effectively.
 AI-Powered Guidance: The AI-driven instructions adapt based on your performance, ensuring you improve with every session.
