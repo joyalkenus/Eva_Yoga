@@ -1,10 +1,10 @@
 
 ---
 
-# 🌟 Meet Eva: Your Personalized Yoga Companion 
+# 🌟 Meet Eva : Your Personalized Yoga Companion 
 
 **Eva AI** 
-An innovative approach to yoga practice with the power of AI. Whether you're an experienced yogi or just beginning your journey, Yoga Assistant AI offers tailored sessions that adapt in real-time to your needs, providing a truly personalized yoga experience.
+- An innovative approach to yoga practice with the power of AI. Whether you're an experienced yogi or just beginning your journey, Yoga Assistant AI offers tailored sessions that adapt in real-time to your needs, providing a truly personalized yoga experience.
 
 ---
 
