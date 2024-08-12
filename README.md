@@ -1,12 +1,14 @@
-<div align="center">
-  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExem1sdWVzaGw0cTZianI3eWRqbjJ6d3RmOHF2M2VsZzl4YnJ6cTdzZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnHN9JLODvS1fr2/giphy.gif" alt="Eva AI">
-</div>
 
 ---
 
 # 🌟 Meet Eva: Your Personalized Yoga Companion 🌟
 
 Welcome to **Eva AI**, an innovative approach to yoga practice with the power of AI. Whether you're an experienced yogi or just beginning your journey, Yoga Assistant AI offers tailored sessions that adapt in real-time to your needs, providing a truly personalized yoga experience.
+---
+
+<div align="center">
+  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExem1sdWVzaGw0cTZianI3eWRqbjJ6d3RmOHF2M2VsZzl4YnJ6cTdzZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnHN9JLODvS1fr2/giphy.gif" alt="Eva AI">
+</div>
 
 ## 🧘 Project Overview
 
