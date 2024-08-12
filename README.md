@@ -8,8 +8,9 @@ Welcome to **Eva AI**, an innovative approach to yoga practice with the power of
 ---
 
 <div align="center">
-  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExem1sdWVzaGw0cTZianI3eWRqbjJ6d3RmOHF2M2VsZzl4YnJ6cTdzZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnHN9JLODvS1fr2/giphy.gif" alt="Eva AI">
+  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2hpaDJvc203cm9ucWpiYWw3eDZ5dmlicTgzdnUyYmwyanUxaTdiYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZbhARpDlb5LjR0TyNC/giphy-downsized-large.gif" alt="Eva AI">
 </div>
+
 
 ## 🧘 Project Overview
 
