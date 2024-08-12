@@ -7,29 +7,33 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
-  gap: 20px;
-  height: 100vh;
-  padding: 20px;
-  background: linear-gradient(45deg, #6e00ff, #00d4ff);
+  gap: 2rem;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(45deg, #4a0080, #000080);
   color: white;
   box-sizing: border-box;
   animation: fadeIn 0.5s ease-out;
+  perspective: 1000px;
 }
 
 .card {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  padding: 20px;
+  padding: 1.5rem;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  transform: translateZ(20px);
 }
 
 .card:hover {
-  box-shadow: 0 6px 35px rgba(0, 0, 0, 0.15);
+  transform: translateZ(30px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
 .camera-container {
@@ -55,17 +59,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
 }
 
 h2 {
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
   text-align: center;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffffff, transparent);
 }
 
 .camera-container video,
@@ -75,43 +89,67 @@ h2 {
   object-fit: cover;
   border-radius: 15px;
   transition: transform 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .camera-container video:hover,
 .pose-image-placeholder img:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .instructions-container p {
   margin: 0;
   padding: 10px;
   font-size: 1.1rem;
-  line-height: 1.5;
+  line-height: 1.6;
   font-family: 'Roboto', sans-serif;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .ai-status {
-  margin-top: 10px;
-  font-size: 1rem;
+  margin-top: 1rem;
+  font-size: 1.1rem;
   text-align: center;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.1);
-  padding: 8px 15px;
+  padding: 0.5rem 1rem;
   border-radius: 15px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-status::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ai-status:hover::before {
+  opacity: 1;
 }
 
 .ai-status:hover {
-  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {
   .yoga-session-container {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
-    height: auto;
+    gap: 1rem;
+    padding: 1rem;
   }
 
   .camera-container,
@@ -123,19 +161,28 @@ h2 {
 
   .camera-container,
   .pose-suggestion-container {
-    height: 300px;
+    height: 250px;
   }
 
   .instructions-container {
     height: auto;
-    max-height: 300px;
+    max-height: 250px;
   }
 
   .ai-feedback-container {
-    height: 100px;
+    height: auto;
+    padding: 1rem;
   }
 
   .instructions-container p {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .ai-status {
     font-size: 1rem;
   }
 }

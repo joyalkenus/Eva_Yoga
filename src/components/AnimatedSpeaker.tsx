@@ -1,69 +1,71 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useAnimation } from 'framer-motion';
 import './AnimatedSpeaker.css';
 
-const AnimatedSpeaker: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
-  const [amplitude, setAmplitude] = useState(0);
+interface AnimatedSpeakerProps {
+  isPlaying: boolean;
+}
+
+const AnimatedSpeaker: React.FC<AnimatedSpeakerProps> = ({ isPlaying }) => {
+  const controls = useAnimation();
   const requestRef = useRef<number>();
 
-  const animate = () => {
-    if (isPlaying) {
-      setAmplitude(Math.sin(Date.now() / 100) * 0.5 + 0.5);
-    } else {
-      setAmplitude(0);
-    }
-    requestRef.current = requestAnimationFrame(animate);
-  };
-
   useEffect(() => {
+    const animate = () => {
+      const time = Date.now() / 1000;
+      const scale = isPlaying 
+        ? 1 + Math.sin(time * 4) * 0.1 
+        : 1 + Math.sin(time * 2) * 0.05;
+
+      controls.set({ scale });
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current!);
-  }, [isPlaying]);
-
-  const size = 50 + amplitude * 20;
-  const mainColor = `rgba(255, 255, 255, ${0.7 + amplitude * 0.3})`;
-  const pulseColor = `rgba(110, 0, 255, ${0.5 + amplitude * 0.5})`;
+  }, [isPlaying, controls]);
 
   return (
     <div className="animated-speaker">
-      <svg width="100" height="100" viewBox="0 0 100 100">
+      <svg width="120" height="120" viewBox="0 0 120 120">
         <defs>
+          <radialGradient id="speakerGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" stopColor="#FFD700" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#FFA500" stopOpacity="0.2" />
+          </radialGradient>
           <filter id="glow">
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
-        <circle
-          cx="50"
-          cy="50"
-          r={size / 2}
-          fill={mainColor}
+        <motion.circle
+          cx="60"
+          cy="60"
+          r="50"
+          fill="url(#speakerGradient)"
           filter="url(#glow)"
+          animate={controls}
         />
-        <circle
-          cx="50"
-          cy="50"
-          r={(size / 2) * 0.8}
-          fill="transparent"
-          stroke={pulseColor}
+        <motion.circle
+          cx="60"
+          cy="60"
+          r="40"
+          fill="none"
+          stroke="#FFD700"
           strokeWidth="2"
-          filter="url(#glow)"
-        >
-          <animate attributeName="r" values={`${(size/2)*0.7};${(size/2)*0.9};${(size/2)*0.7}`} dur="1.5s" repeatCount="indefinite" />
-        </circle>
-        <circle
-          cx="50"
-          cy="50"
-          r={(size / 2) * 0.6}
-          fill="transparent"
-          stroke={pulseColor}
-          strokeWidth="2"
-          filter="url(#glow)"
-        >
-          <animate attributeName="r" values={`${(size/2)*0.5};${(size/2)*0.7};${(size/2)*0.5}`} dur="1.5s" repeatCount="indefinite" />
-        </circle>
+          strokeDasharray="0 1"
+          animate={{
+            rotate: [0, 360],
+            strokeDasharray: isPlaying ? ["1 0", "0 1"] : ["0 1", "0 1"],
+          }}
+          transition={{
+            rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+            strokeDasharray: { duration: 1.5, repeat: Infinity, repeatType: "reverse" },
+          }}
+        />
       </svg>
     </div>
   );

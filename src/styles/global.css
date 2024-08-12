@@ -1,12 +1,16 @@
 :root {
   --primary-color: #6e00ff;
-  --secondary-color: #00d4ff;
+  --secondary-color: #0f9ab6;
   --background-color: #0a0a0a;
   --text-color: #ffffff;
-  --accent-color: #ff00ff;
+  --accent-color: #f64cf6;
   --glass-background: rgba(255, 255, 255, 0.1);
   --glass-border: 1px solid rgba(255, 255, 255, 0.2);
   --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --button-primary: #6b0daf;
+  --button-secondary: #39a5df;
+  --button-glow: rgba(255, 217, 0, 0.818);
+  --button-text: #ffffff;
 }
 
 body {
@@ -25,6 +29,8 @@ body {
   background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
   position: relative;
   overflow: hidden;
+  padding-top: 20%;
+  padding-bottom: 20%;
 }
 
 .landing-container::before {
@@ -42,7 +48,7 @@ body {
 
 @keyframes wave {
   0% { background-position-x: 0; }
-  100% { background-position-x: 1440px; }
+  100% { background-position-x: 1770px; }
 }
 
 .glass-panel {
@@ -58,8 +64,8 @@ body {
 }
 
 .btn {
-  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-  color: var(--text-color);
+  background: linear-gradient(45deg, #c7a3038b, #5c25c9);
+  color: var(--button-text);
   border: none;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
@@ -68,27 +74,37 @@ body {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 17px 25px rgba(0, 0, 0, 0.3);
   margin: 10px 0;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--button-glow);
+}
+
+.btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 0 0 5px var(--button-glow);
 }
 
 .primary-btn {
-  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(45deg, #e9c131, #5a28c7);
+  
 }
 
 .secondary-btn {
-  background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
-}
+  background: linear-gradient(45deg, #e0b92dcf, #4811ae);
+} 
 
 .logout-btn {
-  background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+  background: linear-gradient(45deg, #d540d08b, #37058d);
 }
+
+
 
 @keyframes float {
   0% { transform: translateY(0px); }

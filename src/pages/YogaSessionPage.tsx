@@ -274,7 +274,7 @@ const YogaSessionPage: React.FC = () => {
       <div className="ai-feedback-container">
         <AnimatedSpeaker isPlaying={isSpeaking} />
         <p className="ai-status">
-          {isListening ? 'Listening...' : (isSpeakingRef.current ? 'AI is speaking...' : 'Waiting for your response')}
+          {isListening ? 'Listening...' : (isSpeakingRef.current ? 'Eva is speaking...' : 'Eva is speaking')}
         </p>
       </div>
     </div>

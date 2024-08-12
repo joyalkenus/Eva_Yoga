@@ -98,9 +98,9 @@ const PreparationPage: React.FC = () => {
   const getStatusMessage = () => {
     switch (stage) {
       case 'playing':
-        return 'AI is speaking...';
+        return 'Eva is speaking...';
       case 'listening':
-        return 'AI is listening...';
+        return 'Eva is listening...';
       case 'processing':
         return 'Processing your response...';
       default:

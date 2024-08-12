@@ -89,7 +89,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="landing-container">
       <div className="glass-panel floating">
-        <h1>Welcome to Your Yoga Assistant</h1>
+        <h1> Embrace Your Yoga 🧘 Journey </h1>
         {error && <p className="error-message">{error}</p>}
         <button onClick={handleStartNewSession} className="btn primary-btn">Start New Session</button>
         {sessions.length > 0 ? (
